@@ -32,7 +32,6 @@ func (fc *FastCheck) AddWord(text string) {
 		text = strings.ToUpper(text)
 	}
 	runes = []rune(text)
-
 	sz := float64(len(runes))
 	fc.maxWordLen = math.Max(fc.maxWordLen, sz)
 	fc.minWordLen = math.Min(fc.minWordLen, sz)
@@ -95,9 +94,7 @@ func (fc *FastCheck) Hasword(text string) bool {
 					if _, ok := fc.hashSet[string(runes[idx:idx+j+1])]; ok {
 						return true
 					}
-
 				}
-
 			}
 		}
 		idx += count
@@ -148,9 +145,7 @@ func (fc *FastCheck) ReplaceWith(text string, char rune) string {
 						}
 						break
 					}
-
 				}
-
 			}
 		}
 		idx += count
