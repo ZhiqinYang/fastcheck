@@ -3,6 +3,7 @@ package fastcheck
 import (
 	"math"
 	"strings"
+	"sync"
 )
 
 const (
@@ -20,6 +21,7 @@ type FastCheck struct {
 	maxWordLen float64
 	minWordLen float64
 	ignoreCase bool
+	sync.RWMutex
 }
 
 func NewFastCheck(ignoreCase bool) *FastCheck {
@@ -31,6 +33,13 @@ func (fc *FastCheck) AddWord(text string) {
 	if fc.ignoreCase {
 		text = strings.ToUpper(text)
 	}
+
+	fc.Lock()
+	defer fc.Unlock()
+	if _, ok := fc.hashSet[text]; ok {
+		return
+	}
+
 	runes = []rune(text)
 	sz := float64(len(runes))
 	fc.maxWordLen = math.Max(fc.maxWordLen, sz)
@@ -61,6 +70,8 @@ func (fc *FastCheck) Hasword(text string) bool {
 		runes = []rune(text)
 	}
 
+	fc.RUnlock()
+	defer fc.RUnlock()
 	sz := len(runes)
 	for idx < sz {
 		var count = 1
@@ -106,8 +117,9 @@ func (fc *FastCheck) ReplaceWith(text string, char rune) string {
 	var idx int
 	runes := []rune(strings.ToUpper(text))
 	original := []rune(text)
-
 	sz := len(runes)
+	fc.RUnlock()
+	defer fc.RUnlock()
 	for idx < sz {
 		var count = 1
 		if idx > 0 || fc.fastCheck[runes[idx]]&1 == 0 {
