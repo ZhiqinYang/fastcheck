@@ -61,7 +61,7 @@ func (fc *FastCheck) AddWord(text string) {
 	}
 }
 
-func (fc *FastCheck) Hasword(text string) bool {
+func (fc *FastCheck) HasWord(text string) bool {
 	var idx int
 	var runes []rune
 	if fc.ignoreCase {
@@ -70,7 +70,7 @@ func (fc *FastCheck) Hasword(text string) bool {
 		runes = []rune(text)
 	}
 
-	fc.RUnlock()
+	fc.RLock()
 	defer fc.RUnlock()
 	sz := len(runes)
 	for idx < sz {
@@ -118,8 +118,10 @@ func (fc *FastCheck) ReplaceWith(text string, char rune) string {
 	runes := []rune(strings.ToUpper(text))
 	original := []rune(text)
 	sz := len(runes)
-	fc.RUnlock()
+
+	fc.RLock()
 	defer fc.RUnlock()
+
 	for idx < sz {
 		var count = 1
 		if idx > 0 || fc.fastCheck[runes[idx]]&1 == 0 {
